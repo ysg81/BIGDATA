@@ -1,0 +1,139 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.OutputStreamWriter;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import java.util.Date;
+import java.util.List;
+import java.util.Set;
+
+public class Maincode {
+
+    private WebDriver driver;
+    
+    public static final String WEB_DRIVER_ID = "webdriver.chrome.driver";
+    
+    private String base_url;
+    
+    static String WEB_DRIVER_PATH = "C:\\Users\\USER\\Desktop\\gmcw\\file\\chromedriver.exe";
+    static int crawling_start = 593728;
+    static int crawling_end = 583728;
+    static int file_starting = 1;
+    static String saving_folder = "C:\\Users\\USER\\Desktop\\gmcw\\data\\";
+    
+    public Maincode() {
+        super();
+        System.setProperty(WEB_DRIVER_ID, WEB_DRIVER_PATH);
+    }
+    
+    public static void main(String[] args) {
+    	Maincode selTest = new Maincode();
+    	for(int i=1;i<args.length;i++) {
+    		if(args[i].equals("-d") && i+1<args.length) {
+    			WEB_DRIVER_PATH = new String(args[i+1]);
+    			i++;
+    		}
+    		if(args[i].equals("-f") && i+1<args.length) {
+    			saving_folder = new String(args[i+1]);
+    			i++;
+    		}
+    		if(args[i].equals("-e") && i+1<args.length) {
+    			crawling_end = Integer.parseInt(args[i+1]);
+    			i++;
+    		}
+    		if(args[i].equals("-s") && i+1<args.length) {
+    			crawling_start = Integer.parseInt(args[i+1]);
+    			i++;
+    		}
+    		if(args[i].equals("-fs") && i+1<args.length) {
+    			file_starting = Integer.parseInt(args[i+1]);
+    			i++;
+    		}
+    	
+    	}
+        selTest.crawl();    
+    }
+    public void crawl() {
+    	 BufferedWriter fw = null;
+	    try {
+		    driver = new ChromeDriver();
+		    JavascriptExecutor js = (JavascriptExecutor) driver;
+		    base_url = "https://www1.president.go.kr/petitions/"+crawling_start;
+	        driver.get(base_url);
+		    
+	        int file_num = file_starting;
+		    int file_ele_num = 0;
+		    for(int page_now=crawling_start;(crawling_end-page_now)*(crawling_start<crawling_end?1:-1)>=0;page_now+=(crawling_start<crawling_end?1:-1)) {
+		    	if(file_ele_num%100==0) {
+		    		if(fw!=null)
+		    			fw.close();
+			    	try {
+				    	fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(saving_folder + "record"+file_num+".txt"/*,true*/), "utf-8"));
+				    	file_num++;
+			        	fw.flush();
+				    } catch (Exception e) {
+				    	System.out.println("x");
+				    	if(fw!=null)
+				    		fw.close();
+				    	driver.quit();
+			            return;
+				    }
+		    	}
+		    	try {
+	        		js.executeScript("location.href=\"https://www1.president.go.kr/petitions/"+page_now+"\"");
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	                driver.quit();
+	                return;
+	            }
+		        Thread.sleep(2000);
+		        if(driver.findElements(By.className("petitionsView_title")).size()>0) {
+		        	fw.write(page_now+"");
+		        	fw.write(",\"");
+		        	fw.write(driver.findElement(By.className("petitionsView_title")).getText());
+		        	fw.write("\",\"");
+		        	fw.write(driver.findElement(By.className("petitionsView_info_list")).findElement(By.cssSelector("li:nth-child(1)")).getText().replace("카테고리", "").replace("\n", ""));
+		        	fw.write("\",\"");
+		        	fw.write(driver.findElement(By.className("petitionsView_info_list")).findElement(By.cssSelector("li:nth-child(2)")).getText().replace("청원시작", "").replace("\n", ""));
+		        	fw.write("\",");
+		        	fw.write(driver.findElement(By.className("Reply_area_agree")).findElement(By.cssSelector("span")).getText().replace(",", ""));
+		        	fw.write(",\"");
+		        	fw.write(driver.findElement(By.className("View_write")).getText().replace("\"", "\\\"").replace("\n", "\\n"));
+		        	fw.write("\"\r\n");
+		        	fw.flush();
+		        }
+		        file_ele_num++;
+		    }
+		    
+		    
+		    driver.quit();
+		    if(fw!=null)
+		    	fw.close();
+		    driver.quit();
+	    } catch (Exception e) {
+        	e.printStackTrace();
+        	try {
+        		driver.quit();
+        	}
+        	catch (Exception e2) {
+            }
+        	try {
+        		if(fw!=null)
+        			fw.close();
+        	}
+        	catch (Exception e2) {       	
+        	}
+            return;
+        } 
+ 
+    }
+ 
+}
