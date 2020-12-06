@@ -51,7 +51,7 @@ public class Maincode {
 		    CSVParser csvFileParser = CSVFormat.DEFAULT.parse(new FileReader(args[0]));
 		    fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(args[2]/*,true*/), "utf-8"));
         	fw.flush();
-        	WebElement long_summary;
+        	
         	WebElement sumEle;
         	
         	List<CSVRecord> list = csvFileParser.getRecords();
@@ -91,15 +91,8 @@ public class Maincode {
 				if(c>0) 
 				{
 					sumEle = driver.findElement(By.className("summary_text"));
-					long_summary = null;
-					for(WebElement hyper : sumEle.findElements(By.cssSelector("a"))) {
-						if(hyper.getText().equals("See full summary")) {
-							long_summary = hyper;
-							break;
-						}
-					}
-					if(long_summary != null) {
-						long_summary.click();
+					if(sumEle.findElements(By.cssSelector("a")).size()>0) {
+						sumEle.findElement(By.cssSelector("a")).click();
 						Thread.sleep(500);
 						
 						c=20;

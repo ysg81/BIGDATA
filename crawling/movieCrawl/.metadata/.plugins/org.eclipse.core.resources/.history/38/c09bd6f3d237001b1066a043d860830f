@@ -49,10 +49,8 @@ public class Maincode {
 		    base_url = "https://www.google.com";
 	        driver.get(base_url);
 		    CSVParser csvFileParser = CSVFormat.DEFAULT.parse(new FileReader(args[0]));
-		    fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(args[2]/*,true*/), "utf-8"));
+		    fw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(args[2] + "\\record.csv"/*,true*/), "utf-8"));
         	fw.flush();
-        	WebElement long_summary;
-        	WebElement sumEle;
         	
         	List<CSVRecord> list = csvFileParser.getRecords();
         	
@@ -87,40 +85,8 @@ public class Maincode {
 		        	Thread.sleep(500);
 		        	c--;
 		        }
-		        
-				if(c>0) 
-				{
-					sumEle = driver.findElement(By.className("summary_text"));
-					long_summary = null;
-					for(WebElement hyper : sumEle.findElements(By.cssSelector("a"))) {
-						if(hyper.getText().equals("See full summary")) {
-							long_summary = hyper;
-							break;
-						}
-					}
-					if(long_summary != null) {
-						long_summary.click();
-						Thread.sleep(500);
-						
-						c=20;
-						 while(c>0 && driver.findElements(By.className("ipl-zebra-list")).size()==0) {
-				        	Thread.sleep(500);
-				        	c--;
-				        }
-						if(c>0) {
-							sumEle = driver.findElements(By.className("ipl-zebra-list")).get(0);
-							while(c>0 && sumEle.findElements(By.className("ipl-zebra-list__item")).size()==0) {
-					        	Thread.sleep(500);
-					        	c--;
-					        }
-							if(c>0) {
-								fw.write(sumEle.findElement(By.className("ipl-zebra-list__item")).findElement(By.cssSelector("p")).getText().replace("\"", "\'").replace("\n", " "));
-							}
-						}
-						if(c<=0) fw.write("-");
-					}
-					else fw.write(sumEle.getText().replace("\"", "\'").replace("\n", " ").replace(" EN",""));
-				}
+		        if(c>0) 
+		        	fw.write(driver.findElement(By.className("summary_text")).getText().replace("\"", "\'").replace("\n", " ").replace(" EN",""));
 		        else fw.write("-");
 		        fw.write("\"");
 		        fw.write("\r\n");
