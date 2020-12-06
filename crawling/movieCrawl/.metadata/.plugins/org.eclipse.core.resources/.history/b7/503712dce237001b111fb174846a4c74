@@ -100,7 +100,7 @@ public class Maincode {
 		        	c--;
 		        }
 		        if(c>0) {
-		        	fw.write(stripAccents(driver.findElement(By.className("title_wrapper")).findElement(By.cssSelector("h1")).getText()).replace("\"", "\'"));
+		        	fw.write(stripAccents(driver.findElement(By.className("title_wrapper")).findElement(By.cssSelector("h1")).getText()).replace(",", "/"));
 		        	fw.write("\",\"");
 		        	fw.write(stripAccents(driver.findElement(By.className("title_wrapper")).findElement(By.className("subtext")).getText()).replace(",", "/"));
 		        }

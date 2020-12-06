@@ -4,9 +4,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.text.Normalizer;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -42,18 +39,8 @@ public class Maincode {
     	System.setProperty(WEB_DRIVER_ID, args[1]);
         sel.crawl(args);    
     }
-    
-    public static String stripAccents(String s) 
-    {
-        s = Normalizer.normalize(s, Normalizer.Form.NFD);
-        s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-        return s;
-    }
-    
-    
     public void crawl(String[] args) {
     	int c;
-    	
     	BufferedWriter fw = null;
 	    try {
 		    driver = new ChromeDriver();
@@ -69,10 +56,10 @@ public class Maincode {
         	
         	List<CSVRecord> list = csvFileParser.getRecords();
         	
-        	System.out.println("ì¶”ì¶œ ì‹œìž‘!");
+        	System.out.println("ÃßÃâ ½ÃÀÛ!");
         	int k=1;
             for( CSVRecord row : list ) {
-            	System.out.println(k+"/"+list.size()+"ë²ˆì§¸");
+            	System.out.println(k+"/"+list.size()+"¹øÂ°");
             	Thread.sleep(500);
             	try {
 	        		js.executeScript("location.href=\"https://www.imdb.com/title/tt"+String.format("%07d", Integer.parseInt(row.get(2)))+"\"");
@@ -81,7 +68,9 @@ public class Maincode {
 	                continue;
 	            }
             	fw.write(row.get(0));
-            	fw.write(",");
+            	fw.write(",\"");
+            	fw.write(row.get(1).replace("\"", "\'"));
+            	fw.write("\",");
             	fw.write(row.get(2));
             	fw.write(",");
             	c = 20;
@@ -94,45 +83,21 @@ public class Maincode {
 		        else
 		        	fw.write("\"UNKNOWN\"");
 		        fw.write(",\"");
-		        
-		        while(c>0 && driver.findElements(By.className("title_wrapper")).size()==0) {
-		        	Thread.sleep(500);
-		        	c--;
-		        }
-		        if(c>0) {
-		        	fw.write(stripAccents(driver.findElement(By.className("title_wrapper")).findElement(By.cssSelector("h1")).getText()).replace("\"", "\'"));
-		        	fw.write("\",\"");
-		        	fw.write(stripAccents(driver.findElement(By.className("title_wrapper")).findElement(By.className("subtext")).getText()).replace(",", "/"));
-		        }
-		        	
-		        else
-		        	fw.write("-\",\"-");
-		        fw.write("\",\"");
-		        
 		        while(c>0 && driver.findElements(By.className("summary_text")).size()==0) {
 		        	Thread.sleep(500);
 		        	c--;
 		        }
 		        
-		        long_summary = null;
-		        sumEle = driver.findElement(By.className("summary_text"));
-		        
 				if(c>0) 
 				{
-					
-					
+					sumEle = driver.findElement(By.className("summary_text"));
+					long_summary = null;
 					for(WebElement hyper : sumEle.findElements(By.cssSelector("a"))) {
 						if(hyper.getText().equals("See full summary")) {
 							long_summary = hyper;
 							break;
 						}
-						else if(hyper.getText().equals("Add a Plot")) {
-							c=0;
-							break;
-						}
 					}
-				}
-				if(c>0) {
 					if(long_summary != null) {
 						long_summary.click();
 						Thread.sleep(500);
@@ -149,12 +114,12 @@ public class Maincode {
 					        	c--;
 					        }
 							if(c>0) {
-								fw.write(stripAccents(sumEle.findElement(By.className("ipl-zebra-list__item")).findElement(By.cssSelector("p")).getText()).replace("\"", "\'").replace("\n", " "));
+								fw.write(sumEle.findElement(By.className("ipl-zebra-list__item")).findElement(By.cssSelector("p")).getText().replace("\"", "\'").replace("\n", " "));
 							}
 						}
 						if(c<=0) fw.write("-");
 					}
-					else fw.write(stripAccents(sumEle.getText()).replace("\"", "\'").replace("\n", " ").replace(" EN",""));
+					else fw.write(sumEle.getText().replace("\"", "\'").replace("\n", " ").replace(" EN",""));
 				}
 		        else fw.write("-");
 		        fw.write("\"");

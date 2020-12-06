@@ -5,8 +5,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
-import java.text.Normalizer;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -42,18 +40,10 @@ public class Maincode {
     	System.setProperty(WEB_DRIVER_ID, args[1]);
         sel.crawl(args);    
     }
-    
-    public static String stripAccents(String s) 
-    {
-        s = Normalizer.normalize(s, Normalizer.Form.NFD);
-        s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
-        return s;
-    }
-    
-    
     public void crawl(String[] args) {
     	int c;
     	
+    	String[] charset = {"utf-8","euc-kr","ksc5601","iso-8859-1","ISO 8859-16", "x-windows-949", "US-ASCII", "EBCDIC", "cp872"};
     	BufferedWriter fw = null;
 	    try {
 		    driver = new ChromeDriver();
@@ -69,10 +59,10 @@ public class Maincode {
         	
         	List<CSVRecord> list = csvFileParser.getRecords();
         	
-        	System.out.println("ì¶”ì¶œ ì‹œìž‘!");
+        	System.out.println("ÃßÃâ ½ÃÀÛ!");
         	int k=1;
             for( CSVRecord row : list ) {
-            	System.out.println(k+"/"+list.size()+"ë²ˆì§¸");
+            	System.out.println(k+"/"+list.size()+"¹øÂ°");
             	Thread.sleep(500);
             	try {
 	        		js.executeScript("location.href=\"https://www.imdb.com/title/tt"+String.format("%07d", Integer.parseInt(row.get(2)))+"\"");
@@ -100,9 +90,25 @@ public class Maincode {
 		        	c--;
 		        }
 		        if(c>0) {
-		        	fw.write(stripAccents(driver.findElement(By.className("title_wrapper")).findElement(By.cssSelector("h1")).getText()).replace("\"", "\'"));
+		        	fw.write(driver.findElement(By.className("title_wrapper")).findElement(By.cssSelector("h1")).getText().replace(",", "/"));
 		        	fw.write("\",\"");
-		        	fw.write(stripAccents(driver.findElement(By.className("title_wrapper")).findElement(By.className("subtext")).getText()).replace(",", "/"));
+		        	fw.write(driver.findElement(By.className("title_wrapper")).findElement(By.className("subtext")).getText().replace(",", "/"));
+		        	System.out.println(driver.findElement(By.className("title_wrapper")).findElement(By.cssSelector("h1")).getText());
+		        	if(k==1) {
+		        		String s = driver.findElement(By.className("title_wrapper")).findElement(By.cssSelector("h1")).getText();
+		        		for(int i=0;i<charset.length;i++) {
+		        			for(int j=0;j<charset.length;j++) {
+		        				try {
+		        					System.out.println("["+charset[i]+","+charset[j]+"] "+
+		        				new String(s.getBytes(charset[i]),charset[j]));
+		        				}
+		        				catch(UnsupportedEncodingException e) {
+		        					System.out.println("["+charset[i]+","+charset[j]+"] "+"X");
+			        			}
+		        			}
+		        			
+		        		}
+		        	}
 		        }
 		        	
 		        else
@@ -149,12 +155,12 @@ public class Maincode {
 					        	c--;
 					        }
 							if(c>0) {
-								fw.write(stripAccents(sumEle.findElement(By.className("ipl-zebra-list__item")).findElement(By.cssSelector("p")).getText()).replace("\"", "\'").replace("\n", " "));
+								fw.write(sumEle.findElement(By.className("ipl-zebra-list__item")).findElement(By.cssSelector("p")).getText().replace("\"", "\'").replace("\n", " "));
 							}
 						}
 						if(c<=0) fw.write("-");
 					}
-					else fw.write(stripAccents(sumEle.getText()).replace("\"", "\'").replace("\n", " ").replace(" EN",""));
+					else fw.write(sumEle.getText().replace("\"", "\'").replace("\n", " ").replace(" EN",""));
 				}
 		        else fw.write("-");
 		        fw.write("\"");
