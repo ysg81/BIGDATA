@@ -84,7 +84,7 @@ public class Maincode {
             	fw.write(",");
             	fw.write(row.get(2));
             	fw.write(",");
-            	c = 30;
+            	c = 20;
 		        while(c>0 && driver.findElements(By.cssSelector("[itemprop=ratingValue]")).size()==0) {
 		        	Thread.sleep(500);
 		        	c--;
@@ -137,7 +137,7 @@ public class Maincode {
 						long_summary.click();
 						Thread.sleep(500);
 						
-						c=30;
+						c=20;
 						 while(c>0 && driver.findElements(By.className("ipl-zebra-list")).size()==0) {
 				        	Thread.sleep(500);
 				        	c--;
