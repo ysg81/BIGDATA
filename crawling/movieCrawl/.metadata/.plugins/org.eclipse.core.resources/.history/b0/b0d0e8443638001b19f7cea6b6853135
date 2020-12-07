@@ -142,13 +142,6 @@ public class Maincode {
 							}
 							catch(Exception e) {
 								System.out.println("error 1");
-								Thread.sleep(500);
-								for(WebElement hyper : sumEle.findElements(By.cssSelector("a"))) {
-									if(hyper.getText().equals("See full summary")) {
-										long_summary = hyper;
-										break;
-									}
-								}
 							}
 						}
 						if(d==10) {

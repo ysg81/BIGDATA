@@ -53,7 +53,6 @@ public class Maincode {
     
     public void crawl(String[] args) {
     	int c;
-    	int d;
     	
     	BufferedWriter fw = null;
 	    try {
@@ -135,25 +134,7 @@ public class Maincode {
 				if(c>0) {
 					if(long_summary != null) {
 						Thread.sleep(500);
-						for(d=0;d<10;d++) {
-							try {
-								long_summary.click();
-								d=11;
-							}
-							catch(Exception e) {
-								System.out.println("error 1");
-								Thread.sleep(500);
-								for(WebElement hyper : sumEle.findElements(By.cssSelector("a"))) {
-									if(hyper.getText().equals("See full summary")) {
-										long_summary = hyper;
-										break;
-									}
-								}
-							}
-						}
-						if(d==10) {
-							long_summary.click();
-						}
+						long_summary.click();
 						
 						
 						c=30;
